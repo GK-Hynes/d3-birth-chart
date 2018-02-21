@@ -46,6 +46,16 @@ d3.select("svg")
     .attr("fill", "purple");
 
 // prettier-ignore
+d3.select("svg")
+  .append("text")
+  .classed("title", true)
+  .text("Birth Data in " + minYear)
+  .attr("x", width / 2)
+  .attr("y", 30)
+  .style("text-anchor", "middle")
+  .style("font-size", "2em");
+
+// prettier-ignore
 d3.select("input")
     .on("input", function() {
         var year = +d3.event.target.value;
@@ -53,6 +63,25 @@ d3.select("input")
             .data(birthData.filter(function(d) {
                 return d.year === year;
             }))
+            .transition()
+            .duration(2000)
+            .ease(d3.easeLinear)
+            .delay((d, i) => i * 250)
+            .on("start", function(d, i) {
+                if (i === 0) {
+                    d3.select(".title")
+                    .text("Updating to " + year + " data...");
+                }
+            })
+            .on("end", function(d, i, nodes) {
+                if (i === nodes.length -1) {
+                    d3.select(".title")
+                      .text("Birth Data in " + year);
+                }
+            })
+            .on("interrupt", function() {
+                console.log("Interrupted! No longer updating to " + year + " data...");
+            })
                 .attr("height", function(d) {
                     return height - yScale(d.births);
                 })
